@@ -127,4 +127,107 @@ public class BuscaminasModelo {
     private boolean esValida(int fila, int columna) {
         return fila >= 0 && fila < tamaño && columna >= 0 && columna < tamaño;
     }
+    
+    /**
+     * Destapa una casilla del tablero
+     * @param fila Fila de la casilla a destapar
+     * @param columna Columna de la casilla a destapar
+     * @return true si la operación fue exitosa, false si no se pudo realizar
+     */
+    public boolean destapar(int fila, int columna) {
+        // Validar que la operación sea posible
+        if (!esValida(fila, columna) || destapadas[fila][columna] || 
+            marcadas[fila][columna] || juegoTerminado) {
+            return false;
+        }
+        
+        // Destapar la casilla
+        destapadas[fila][columna] = true;
+        
+        // Verificar si se destapó una mina
+        if (minas[fila][columna]) {
+            juegoTerminado = true;
+            juegoGanado = false;
+            estadisticas.incrementarJuegosPerdidos();
+            return true;
+        }
+        
+        // Si no hay minas vecinas, destapar automáticamente las casillas adyacentes
+        if (numeroVecinas[fila][columna] == 0) {
+            destaparVecinas(fila, columna);
+        }
+        
+        verificarVictoria();
+        return true;
+    }
+    
+    /**
+     * Destapa recursivamente las casillas vecinas cuando no hay minas alrededor
+     * Implementa la funcionalidad de "flood fill" del Buscaminas tradicional
+     * @param fila Fila de la casilla desde donde expandir
+     * @param columna Columna de la casilla desde donde expandir
+     */
+    private void destaparVecinas(int fila, int columna) {
+        // Revisar las 8 casillas adyacentes
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                int nuevaFila = fila + i;
+                int nuevaColumna = columna + j;
+                
+                // Validar y destapar casillas válidas
+                if (esValida(nuevaFila, nuevaColumna) && 
+                    !destapadas[nuevaFila][nuevaColumna] && 
+                    !marcadas[nuevaFila][nuevaColumna] && 
+                    !minas[nuevaFila][nuevaColumna]) {
+                    
+                    destapadas[nuevaFila][nuevaColumna] = true;
+                    
+                    // Continuar expansión si no hay minas vecinas
+                    if (numeroVecinas[nuevaFila][nuevaColumna] == 0) {
+                        destaparVecinas(nuevaFila, nuevaColumna);
+                    }
+                }
+            }
+        }
+    }
+    /**
+     * Cuenta el número de casillas marcadas actualmente
+     * @return Número total de marcas colocadas en el tablero
+     */
+    private int contarMarcas() {
+        int contador = 0;
+        for (int i = 0; i < tamaño; i++) {
+            for (int j = 0; j < tamaño; j++) {
+                if (marcadas[i][j]) {
+                    contador++;
+                }
+            }
+        }
+        return contador;
+    }
+    
+    /**
+     * Verifica si el jugador ha ganado el juego
+     * Condición de victoria: todas las minas están marcadas y no hay marcas incorrectas
+     */
+    private void verificarVictoria() {
+        if (juegoTerminado) return;
+        
+        int minasCorrectasMarcadas = 0;
+        int marcasIncorrectas = 0;
+        
+        // Contar marcas correctas e incorrectas
+        for (int i = 0; i < tamaño; i++) {
+            for (int j = 0; j < tamaño; j++) {
+                if (marcadas[i][j]) {
+                    if (minas[i][j]) {
+                        minasCorrectasMarcadas++;
+                    } else {
+                        marcasIncorrectas++;
+                    }
+                }
+            }
+        }
+    }
+    
 }
