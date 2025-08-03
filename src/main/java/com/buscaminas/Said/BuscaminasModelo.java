@@ -15,7 +15,6 @@ import java.util.Random;
  * @since 2025-07-26
  */
 public class BuscaminasModelo {
-
     // Atributos del modelo del juego
     private int tamaño;
     private int numeroMinas;
@@ -26,10 +25,9 @@ public class BuscaminasModelo {
     private boolean juegoTerminado;
     private boolean juegoGanado;
     private EstadisticasJuego estadisticas;
-
+    
     /**
      * Constructor del modelo de Buscaminas
-     *
      * @param tamaño Tamaño del lado del tablero cuadrado (debe ser mayor a 2)
      */
     public BuscaminasModelo(int tamaño) {
@@ -38,7 +36,7 @@ public class BuscaminasModelo {
         this.estadisticas = new EstadisticasJuego();
         inicializarJuego();
     }
-
+    
     /**
      * Inicializa un nuevo juego con todas las estructuras de datos
      */
@@ -48,30 +46,30 @@ public class BuscaminasModelo {
         destapadas = new boolean[tamaño][tamaño];
         marcadas = new boolean[tamaño][tamaño];
         numeroVecinas = new int[tamaño][tamaño];
-
+        
         // Inicializar estado del juego
         juegoTerminado = false;
         juegoGanado = false;
-
+        
         // Configurar el tablero
         colocarMinas();
         calcularNumeroVecinas();
         estadisticas.incrementarJuegosJugados();
     }
-
+    
     /**
-     * Coloca las minas aleatoriamente en el tablero Garantiza que no haya más
-     * de una mina por casilla
+     * Coloca las minas aleatoriamente en el tablero
+     * Garantiza que no haya más de una mina por casilla
      */
     private void colocarMinas() {
         Random random = new Random();
         int minasColocadas = 0;
-
+        
         // Colocar minas hasta alcanzar el número requerido
         while (minasColocadas < numeroMinas) {
             int fila = random.nextInt(tamaño);
             int columna = random.nextInt(tamaño);
-
+            
             // Solo colocar mina si la casilla está vacía
             if (!minas[fila][columna]) {
                 minas[fila][columna] = true;
@@ -79,7 +77,7 @@ public class BuscaminasModelo {
             }
         }
     }
-
+    
     /**
      * Calcula el número de minas vecinas para cada casilla del tablero
      */
@@ -92,23 +90,22 @@ public class BuscaminasModelo {
             }
         }
     }
-
+    
     /**
      * Cuenta las minas vecinas de una casilla específica
-     *
      * @param fila Fila de la casilla a evaluar
      * @param columna Columna de la casilla a evaluar
      * @return Número de minas en las 8 casillas adyacentes
      */
     private int contarMinasVecinas(int fila, int columna) {
         int contador = 0;
-
+        
         // Revisar las 8 casillas adyacentes
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
                 int nuevaFila = fila + i;
                 int nuevaColumna = columna + j;
-
+                
                 if (esValida(nuevaFila, nuevaColumna) && minas[nuevaFila][nuevaColumna]) {
                     contador++;
                 }
@@ -116,10 +113,9 @@ public class BuscaminasModelo {
         }
         return contador;
     }
-
+    
     /**
      * Verifica si una coordenada es válida dentro del tablero
-     *
      * @param fila Fila a verificar
      * @param columna Columna a verificar
      * @return true si la coordenada está dentro de los límites del tablero
@@ -190,6 +186,30 @@ public class BuscaminasModelo {
             }
         }
     }
+    
+    /**
+     * Marca o desmarca una casilla
+     * @param fila Fila de la casilla a marcar/desmarcar
+     * @param columna Columna de la casilla a marcar/desmarcar
+     * @return true si la operación fue exitosa, false si no se pudo realizar
+     */
+    public boolean marcar(int fila, int columna) {
+        // Validar que la operación sea posible
+        if (!esValida(fila, columna) || destapadas[fila][columna] || juegoTerminado) {
+            return false;
+        }
+        
+        // Verificar límite de marcas (no puede superar el número de minas)
+        if (!marcadas[fila][columna] && contarMarcas() >= numeroMinas) {
+            return false;
+        }
+        
+        // Alternar el estado de marca
+        marcadas[fila][columna] = !marcadas[fila][columna];
+        verificarVictoria();
+        return true;
+    }
+    
     /**
      * Cuenta el número de casillas marcadas actualmente
      * @return Número total de marcas colocadas en el tablero
@@ -228,6 +248,97 @@ public class BuscaminasModelo {
                 }
             }
         }
+        
+        // Verificar condición de victoria
+        if (minasCorrectasMarcadas == numeroMinas && marcasIncorrectas == 0) {
+            juegoTerminado = true;
+            juegoGanado = true;
+            estadisticas.incrementarJuegosGanados();
+        }
     }
     
+    // Métodos getter para acceder a los atributos del modelo
+    
+    /**
+     * @return Tamaño del lado del tablero
+     */
+    public int getTamaño() { 
+        return tamaño; 
+    }
+    
+    /**
+     * @return Número total de minas en el tablero
+     */
+    public int getNumeroMinas() { 
+        return numeroMinas; 
+    }
+    
+    /**
+     * Verifica si hay una mina en las coordenadas especificadas
+     * @param fila Fila a verificar
+     * @param columna Columna a verificar
+     * @return true si hay una mina en esa posición
+     */
+    public boolean esMina(int fila, int columna) { 
+        return minas[fila][columna]; 
+    }
+    
+    /**
+     * Verifica si una casilla está destapada
+     * @param fila Fila a verificar
+     * @param columna Columna a verificar
+     * @return true si la casilla está destapada
+     */
+    public boolean estaDestapada(int fila, int columna) { 
+        return destapadas[fila][columna]; 
+    }
+    
+    /**
+     * Verifica si una casilla está marcada
+     * @param fila Fila a verificar
+     * @param columna Columna a verificar
+     * @return true si la casilla está marcada
+     */
+    public boolean estaMarcada(int fila, int columna) { 
+        return marcadas[fila][columna]; 
+    }
+    
+    /**
+     * Obtiene el número de minas vecinas de una casilla
+     * @param fila Fila de la casilla
+     * @param columna Columna de la casilla
+     * @return Número de minas en las casillas adyacentes
+     */
+    public int getNumeroVecinas(int fila, int columna) { 
+        return numeroVecinas[fila][columna]; 
+    }
+    
+    /**
+     * @return true si el juego ha terminado (ganado o perdido)
+     */
+    public boolean isJuegoTerminado() { 
+        return juegoTerminado; 
+    }
+    
+    /**
+     * @return true si el juego terminó con victoria
+     */
+    public boolean isJuegoGanado() { 
+        return juegoGanado; 
+    }
+    
+    /**
+     * @return Objeto con las estadísticas del juego
+     */
+    public EstadisticasJuego getEstadisticas() { 
+        return estadisticas; 
+    }
+    
+    /**
+     * @return Número actual de marcas colocadas
+     */
+    public int getContadorMarcas() { 
+        return contarMarcas(); 
+    }
 }
+ 
