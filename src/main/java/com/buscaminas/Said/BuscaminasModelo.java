@@ -10,7 +10,7 @@ import java.util.Random;
  * Clase que maneja la lógica del juego Buscaminas Universidad Técnica Nacional
  * ITI Programación I - Proyecto Final
  *
- * @author Said
+ * @author Jainer Said
  * @version 1.0
  * @since 2025-07-26
  */
