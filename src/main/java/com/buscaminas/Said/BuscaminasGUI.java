@@ -6,7 +6,7 @@ package com.buscaminas.Said;
 
 /**
  *
- * @author jaine
+ * @author jainer Said
  */
 public class BuscaminasGUI {
     
