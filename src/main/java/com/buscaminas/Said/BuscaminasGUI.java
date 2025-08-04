@@ -15,7 +15,7 @@ import java.awt.event.MouseEvent;
  * Universidad Técnica Nacional ITI
  * Programación I - Proyecto Final
  * 
- * @author Said
+ * @author Said Garcia Gonzalez
  * @version 1.0
  * @since 2025-07-27
  */

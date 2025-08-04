@@ -9,7 +9,7 @@ package com.buscaminas.Said;
  * Universidad Técnica Nacional ITI
  * Programación I - Proyecto Final
  * 
- * @author Said
+ * @author Said Garcia Gonzales
  * @version 1.0
  * @since 2025-07-25
  */
